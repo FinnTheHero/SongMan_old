@@ -35,23 +35,26 @@ Project also requires ffmpeg to be installed and added to system enviromental va
 To run this project, follow these steps ( Assuming you already have ffmpeg installed ):
 
 1. Download this project and navigate to its directory using the command line:
-   ```powershell
+   ```shell
    git clone https://github.com/FinnTheHero/songman.git
    ```
 
-   ```powershell
+   ```shell
    cd songman
    ```
 
 2. Create a `.env` file in the project directory with the required API credentials.
 
 3. Create directory called `music`:
-   ```powershell
+   ```shell
    mkdir music
    ```
    all of the downloaded/converted audio files will be stored here
 
-4. Run the code using the appropriate command.
+4. Run the code using the command:
+   ```shell
+   node songman
+   ```
 
 You can install ffmpeg from following [guide](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/)
 
