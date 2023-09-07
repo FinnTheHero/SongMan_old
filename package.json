@@ -1,13 +1,13 @@
 {
-  "name": "song_stealer",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
+  "name": "SongMan",
+  "version": "1.0.1",
+  "description": "Spotify Playlist/Track to mp3 converter",
+  "main": "songman.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "FinnTheHero",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.5.0",
