@@ -87,8 +87,6 @@ function validateUrl(spUrl) {
 
 async function getAlbumInfo(albumId) {
 	const album = await spotifyApi.getAlbum(albumId);
-	console.log(album.body.artists);
-	console.log(album.body.artists[0].name);
 	return album.body;
 }
 
