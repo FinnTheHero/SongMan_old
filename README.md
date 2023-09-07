@@ -1,4 +1,4 @@
-# SongMan - Experimental Music Transformation Project
+# Experimental Music Transformation Project
 
 ## Overview
 
