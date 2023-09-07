@@ -35,19 +35,19 @@ Project also requires ffmpeg to be installed and added to system enviromental va
 To run this project, follow these steps ( Assuming you already have ffmpeg installed ):
 
 1. Download this project and navigate to its directory using the command line:
-   ```sh
+   ```powershell
    git clone https://github.com/FinnTheHero/songman.git
    ```
 
-   ```sh
+   ```powershell
    cd songman
    ```
 
 2. Create a `.env` file in the project directory with the required API credentials.
 
 3. Create directory called `music`:
-   ```sh
-      mkdir music
+   ```powershell
+   mkdir music
    ```
    all of the downloaded/converted audio files will be stored here
 
