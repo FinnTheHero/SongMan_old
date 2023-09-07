@@ -50,33 +50,28 @@ async function main() {
 		const searchQuery = `${trackInfo.artistName} ${trackInfo.trackTitle} audio`;
 		const videoUrl = await findYoutube(searchQuery);
 
-		if (videoUrl != null) {
-			console.log(
-			`(${i + 1}/${songs.length}) Downloading '${trackInfo.artistName} - ${
-				trackInfo.trackTitle
-			}'...`,
-			);
-			
-			const audioPath = await downloadYt(videoUrl, trackInfo.trackTitle);
-			let convertedAudioPath;
-	
-			if (audioPath) {
-			convertedAudioPath = await convertWebmToMp3(audioPath);
-			removeSourceFile(audioPath);
-			}
-	
-			if (convertedAudioPath) {
-			await setMetadata(trackInfo, convertedAudioPath); // Wait for metadata to be set before moving on
-			downloaded++;
-			} else {
-			console.log("File exists. Skipping...");
-			}
-		}else{
-			console.log(`(${i + 1}/${songs.length}) Couldn't find '${trackInfo.artistName} - ${trackInfo.trackTitle}'. Skipping...`)
+		console.log(
+		`(${i + 1}/${songs.length}) Downloading '${trackInfo.artistName} - ${
+			trackInfo.trackTitle
+		}'...`,
+		);
+		const audioPath = await downloadYt(videoUrl, trackInfo.trackTitle);
+		let convertedAudioPath;
+
+		if (audioPath) {
+		convertedAudioPath = await convertWebmToMp3(audioPath);
+		removeSourceFile(audioPath);
+		}
+
+		if (convertedAudioPath) {
+		await setMetadata(trackInfo, convertedAudioPath); // Wait for metadata to be set before moving on
+		downloaded++;
+		} else {
+		console.log("File exists. Skipping...");
 		}
 	}
 	const end = Date.now();
-	console.log(`Download location: ${process.cwd()}\music`);
+	console.log(`Download location: ${process.cwd()}`);
 	console.log(
 		`DOWNLOAD COMPLETED: ${downloaded}/${songs.length} song(s) downloaded`,
 	);
@@ -147,13 +142,8 @@ async function findYoutube(query) {
 		q: query,
 		maxResults: 1,
 	});
-
-	if(res.data.items.length > 0){
-		return `https://www.youtube.com/watch?v=${res.data.items[0].id.videoId}`;
-	}else{
-		return null
-	}
-
+	const videoId = res.data.items[0].id.videoId;
+	return `https://www.youtube.com/watch?v=${videoId}`;
 }
 
 async function downloadYt(videoUrl, trackTitle) {
@@ -174,7 +164,7 @@ async function downloadYt(videoUrl, trackTitle) {
 	});
 
 	return audioPath;
-}
+	}
 
 async function convertWebmToMp3(audioPath) {
 	const newPath = audioPath + ".mp3";
