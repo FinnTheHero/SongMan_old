@@ -36,15 +36,24 @@ To run this project, follow these steps ( Assuming you already have ffmpeg insta
 
 1. Download this project and navigate to its directory using the command line:
    ```sh
-   git clone https://github.com/yourusername/yourrepository.git
-   cd yourrepository
+   git clone https://github.com/FinnTheHero/songman.git
+   ```
+
+   ```sh
+   cd songman
    ```
 
 2. Create a `.env` file in the project directory with the required API credentials.
 
-3. Run the code using the appropriate command.
+3. Create directory called `music`:
+   ```sh
+      mkdir music
+   ```
+   all of the downloaded/converted audio files will be stored here
 
-You can install ffmpeg from following guide [Here](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/)
+4. Run the code using the appropriate command.
+
+You can install ffmpeg from following [guide](https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows/)
 
 ## Project Status
 
