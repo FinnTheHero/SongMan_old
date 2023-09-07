@@ -51,7 +51,12 @@ To run this project, follow these steps ( Assuming you already have ffmpeg insta
    ```
    all of the downloaded/converted audio files will be stored here
 
-4. Run the code using the command:
+4. Install required packages
+   ```shell
+   npm i
+   ```
+
+5. Run the code using the command:
    ```shell
    node songman
    ```
