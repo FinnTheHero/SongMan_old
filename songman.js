@@ -71,7 +71,7 @@ async function main() {
 		}
 	}
 	const end = Date.now();
-	console.log(`Download location: ${process.cwd()}`);
+	console.log(`Download location: ${process.cwd()}\music`);
 	console.log(
 		`DOWNLOAD COMPLETED: ${downloaded}/${songs.length} song(s) downloaded`,
 	);
@@ -168,19 +168,29 @@ async function downloadYt(videoUrl, trackTitle) {
 
 async function convertWebmToMp3(audioPath) {
 	const newPath = audioPath + ".mp3";
+
+	const splitPath = audioPath.split("/")
+	
+	const songname = splitPath[splitPath.length - 1]
+	
+	console.log("Processing - " + songname );
+	
+	let prog;
+	
 	return new Promise((res, rej) =>
 		ffmpeg(audioPath)
 		.toFormat("mp3")
 		.on("error", (err) => {
-			console.log("An error occurred: " + err.message);
+			console.log("An error has occurred: " + err.message);
 			rej(err.message);
 		})
 		.on("progress", (progress) => {
 			// console.log(JSON.stringify(progress));
-			console.log("Processing: " + progress.targetSize + " KB converted");
+			//console.log("Processing: " + progress.targetSize + " KB converted");
+			prog = progress.targetSize;
 		})
 		.on("end", () => {
-			console.log("Processing finished !");
+			console.log("Finished - " + prog + " KB converted");
 			res(newPath);
 		})
 		.save(newPath),
