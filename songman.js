@@ -49,9 +49,13 @@ async function main() {
 		const trackInfo = songs[i];
 
 		const searchQuery = `${trackInfo.artistName} ${trackInfo.trackTitle} audio`;
-		const videoUrl = await findYoutube(searchQuery);
+		const videoUrl = await findYoutube(searchQuery,trackInfo.trackTitle);
 
 		if(videoUrl != null) {
+			console.log(`(${i + 1}/${songs.length}) Couldn't find '${trackInfo.trackTitle}' on YouTube! Skipping...`)
+		}else if(videoUrl == "Exists") {
+			console.log(`(${i + 1}/${songs.length}) Audio '${trackInfo.trackTitle}' exists! Skipping...`)
+		}else{
 			console.log(
 			`(${i + 1}/${songs.length}) Downloading '${trackInfo.artistName} - ${
 				trackInfo.trackTitle
@@ -70,9 +74,7 @@ async function main() {
 				downloaded++;
 			} else {
 				console.log("File exists. Skipping...");
-			}
-		}else{
-			console.log(`(${i + 1}/${songs.length}) Couldn't find '${trackInfo.trackTitle}' on YouTube! Skipping...`)
+			}	
 		}
 	}
 	const end = Date.now();
@@ -156,9 +158,15 @@ async function getPlaylistInfo(playlistUrl) {
 	return tracksInfo;
 }
 
-async function findYoutube(query) {
+async function findYoutube(query, trackTitle) {
 	// Use the YouTube Data API to search for a video matching the query
 	// Return the URL of the first matching video
+	const audioPath = `./music/${trackTitle}`;
+
+	if (fs.existsSync(audioPath + ".mp3")) { // Checking if the converted file exists because the source will be deleted after conversion
+		return "Exists"; // File already exists, skip download
+	}
+
 	const res = await youtube.search.list({
 		part: "id",
 		type: "video",
