@@ -47,34 +47,37 @@ async function main() {
 	let downloaded = 0;
 	for (let i = 0; i < songs.length; i++) {
 		const trackInfo = songs[i];
+
 		const searchQuery = `${trackInfo.artistName} ${trackInfo.trackTitle} audio`;
 		const videoUrl = await findYoutube(searchQuery);
 
-		console.log(
-		`(${i + 1}/${songs.length}) Downloading '${trackInfo.artistName} - ${
-			trackInfo.trackTitle
-		}'...`,
-		);
-		const audioPath = await downloadYt(videoUrl, trackInfo.trackTitle);
-		let convertedAudioPath;
-
-		if (audioPath) {
-		convertedAudioPath = await convertWebmToMp3(audioPath);
-		removeSourceFile(audioPath);
-		}
-
-		if (convertedAudioPath) {
-		await setMetadata(trackInfo, convertedAudioPath); // Wait for metadata to be set before moving on
-		downloaded++;
-		} else {
-		console.log("File exists. Skipping...");
+		if(videoUrl != null) {
+			console.log(
+			`(${i + 1}/${songs.length}) Downloading '${trackInfo.artistName} - ${
+				trackInfo.trackTitle
+			}'...`,
+			);
+			const audioPath = await downloadYt(videoUrl, trackInfo.trackTitle);
+			let convertedAudioPath;
+	
+			if (audioPath) {
+				convertedAudioPath = await convertWebmToMp3(audioPath);
+				removeSourceFile(audioPath);
+			}
+	
+			if (convertedAudioPath) {
+				await setMetadata(trackInfo, convertedAudioPath); // Wait for metadata to be set before moving on
+				downloaded++;
+			} else {
+				console.log("File exists. Skipping...");
+			}
+		}else{
+			console.log(`(${i + 1}/${songs.length}) Couldn't find '${trackInfo.trackTitle}' on YouTube! Skipping...`)
 		}
 	}
 	const end = Date.now();
 	console.log(`Download location: ${process.cwd()}\music`);
-	console.log(
-		`DOWNLOAD COMPLETED: ${downloaded}/${songs.length} song(s) downloaded`,
-	);
+	console.log(`DOWNLOAD COMPLETED: ${downloaded}/${songs.length} song(s) downloaded`);
 	console.log(`Total time taken: ${Math.round((end - start) / 1000)} sec`);
 }
 
@@ -113,7 +116,8 @@ async function getTrackInfo(trackUrl) {
 }
 
 async function getPlaylistInfo(playlistUrl) {
-	const res = await spotifyApi.getPlaylist(playlistUrl.split("/").pop());
+	const playlistId = playlistUrl.split("/").pop();
+	const res = await spotifyApi.getPlaylist(playlistId);
 	const playlist = res.body;
 
 	if (!playlist.public) {
@@ -122,12 +126,31 @@ async function getPlaylistInfo(playlistUrl) {
 		);
 	}
 
-	const tracks = playlist.tracks.items.map((item) => item.track);
+	let totalTracks = playlist.tracks.total;
+    let offset = 0;
+    const limit = 100;
 	const tracksInfo = [];
-	for (let i = 0; i < tracks.length; i++) {
-		const trackUrl = `https://open.spotify.com/track/${tracks[i].id}`;
-		const trackInfo = await getTrackInfo(trackUrl);
-		tracksInfo.push(trackInfo);
+
+	while (offset < totalTracks) {
+		let response = await spotifyApi.getPlaylistTracks(playlistId, {
+            offset: offset,
+            limit: limit
+        });
+
+		let tracks = response.body.tracks.items.map((item) => item.track);
+		
+
+		for (let i = 0; i < tracks.length; i++) {
+			const trackUrl = `https://open.spotify.com/track/${tracks[i].id}`;
+			const trackInfo = await getTrackInfo(trackUrl);
+			tracksInfo.push(trackInfo);
+		}
+		
+		if((totalTracks - offset) < limit) {
+			offset += (totalTracks - offset);
+		}else {
+			offset += limit;
+		}
 	}
 
 	return tracksInfo;
@@ -142,8 +165,12 @@ async function findYoutube(query) {
 		q: query,
 		maxResults: 1,
 	});
-	const videoId = res.data.items[0].id.videoId;
-	return `https://www.youtube.com/watch?v=${videoId}`;
+
+	if (res.data.items.length > 0) {
+		return `https://www.youtube.com/watch?v=${res.data.items[0].id.videoId}`;
+	}else {
+		return null;
+	} 
 }
 
 async function downloadYt(videoUrl, trackTitle) {
@@ -179,6 +206,7 @@ async function convertWebmToMp3(audioPath) {
 	
 	return new Promise((res, rej) =>
 		ffmpeg(audioPath)
+		.audioBitrate(320)
 		.toFormat("mp3")
 		.on("error", (err) => {
 			console.log("An error has occurred: " + err.message);
@@ -246,7 +274,7 @@ async function setMetadata(trackInfo, audioPath) {
 	} else {
 		console.log("Error setting metadata");
 		const error = NodeID3.write(tags, audioPath, function (err) {
-		return err;
+			return err;
 		});
 		console.log("Error details:", error);
   	}
